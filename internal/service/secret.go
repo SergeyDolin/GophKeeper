@@ -8,15 +8,17 @@ import (
 	"github.com/google/uuid"
 )
 
+// SecretService manager user secrets.
 type SecretService struct {
 	store *storage.MemoryStorage
 }
 
+// NewSecretService creates a new SecretService instance.
 func NewSecretService(store *storage.MemoryStorage) *SecretService {
 	return &SecretService{store: store}
 }
 
-// Create - create a secret
+// Create stores a new encrypted secret for the user.
 func (s *SecretService) Create(user, typ, meta string, data []byte) models.Secret {
 	secret := models.Secret{
 		ID:        uuid.New().String(),
@@ -31,12 +33,12 @@ func (s *SecretService) Create(user, typ, meta string, data []byte) models.Secre
 	return secret
 }
 
-// List - return secrets of user
+// List returns all secrets for a given user.
 func (s *SecretService) List(user string) []models.Secret {
 	return s.store.GetSecretByUser(user)
 }
 
-// Delete - delete of secret
+// Delete removes a secret by ID.
 func (s *SecretService) Delete(id string) {
 	s.store.DeleteSecret(id)
 }

@@ -1,8 +1,8 @@
+// Package service contains business logic for authentication and authorization.
 package service
 
 import (
 	"errors"
-	"gophkeeper/internal/crypto"
 	"gophkeeper/internal/models"
 	"gophkeeper/internal/storage"
 	"time"
@@ -11,12 +11,13 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// AuthService - logic of auth
+// AuthService handles user authentication and JWT generation.
 type AuthService struct {
 	store     *storage.MemoryStorage
 	jwtSecret []byte
 }
 
+// NewAuthService creates a new AuthService instance.
 func NewAuthService(store *storage.MemoryStorage) *AuthService {
 	return &AuthService{
 		store:     store,
@@ -24,7 +25,7 @@ func NewAuthService(store *storage.MemoryStorage) *AuthService {
 	}
 }
 
-// Register - registration for user
+// Register creates a new user with hashed password.
 func (s *AuthService) Register(login, password string) error {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -37,7 +38,7 @@ func (s *AuthService) Register(login, password string) error {
 	})
 }
 
-// Login - login of user
+// Login authenticates a user and returns a JWT token.
 func (s *AuthService) Login(login, password string) (string, error) {
 	u, err := s.store.GetUser(login)
 	if err != nil {
@@ -55,18 +56,4 @@ func (s *AuthService) Login(login, password string) (string, error) {
 	})
 
 	return token.SignedString(s.jwtSecret)
-}
-
-func (s *AuthService) GetKey(login, password string) ([]byte, error) {
-	u, err := s.store.GetUser(login)
-	if err != nil {
-		return nil, err
-	}
-
-	err = bcrypt.CompareHashAndPassword(u.PasswordHash, []byte(password))
-	if err != nil {
-		return nil, err
-	}
-
-	return crypto.DeriveKey([]byte(password), u.Salt), nil
 }

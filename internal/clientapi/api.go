@@ -1,3 +1,4 @@
+// Package clientapi provides HTTP client for interacting with server API.
 package clientapi
 
 import (
@@ -9,6 +10,7 @@ import (
 
 const baseURL = "http://localhost:8080"
 
+// Login authenticates user and returns JWT token.
 func Login(login, password string) (string, error) {
 	body, _ := json.Marshal(map[string]string{
 		"login":    login,
@@ -25,6 +27,7 @@ func Login(login, password string) (string, error) {
 	return string(token), nil
 }
 
+// AddSecret sends encrypted secret to server.
 func AddSecret(token, typ, meta string, encrypted []byte) error {
 	body, _ := json.Marshal(map[string]interface{}{
 		"type": typ,
@@ -39,6 +42,7 @@ func AddSecret(token, typ, meta string, encrypted []byte) error {
 	return err
 }
 
+// ListSecrets retrieves all user secrets from server.
 func ListSecrets(token, password string) ([]map[string]interface{}, error) {
 	body, _ := json.Marshal(map[string]string{
 		"password": password,

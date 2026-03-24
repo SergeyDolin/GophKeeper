@@ -1,3 +1,4 @@
+// Package handlers provides HTTP handlers for the API.
 package handlers
 
 import (
@@ -9,11 +10,13 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+// Handler handlers HTTP requests for authentication and secrets.
 type Handler struct {
 	auth    *service.AuthService
 	secrets *service.SecretService
 }
 
+// NewHandler initializes all dependencies and returns a Handler.
 func NewHandler() *Handler {
 	store := storage.New()
 	return &Handler{
@@ -22,6 +25,7 @@ func NewHandler() *Handler {
 	}
 }
 
+// Router returns configured HTTP routes.
 func (h *Handler) Router() http.Handler {
 	mux := http.NewServeMux()
 
@@ -37,6 +41,7 @@ type request struct {
 	Password string `json:"password"`
 }
 
+// register handles user registration.
 func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 	var req request
 	json.NewDecoder(r.Body).Decode(&req)
@@ -50,6 +55,7 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+// login handles user authentication and returns JWT.
 func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 	var req request
 	json.NewDecoder(r.Body).Decode(&req)
@@ -69,6 +75,7 @@ type secretRequest struct {
 	Meta string `json:"meta"`
 }
 
+// secretsHandler handles CRUD operations for secrets.
 func (h *Handler) secretsHandler(w http.ResponseWriter, r *http.Request) {
 	user := h.getUserFromRequest(r)
 	if user == "" {
@@ -96,6 +103,7 @@ func (h *Handler) secretsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// getUserFromRequest extracts user login from JWT token.
 func (h *Handler) getUserFromRequest(r *http.Request) string {
 	tokenStr := r.Header.Get("Authorization")
 	if tokenStr == "" {

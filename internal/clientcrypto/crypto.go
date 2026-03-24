@@ -1,3 +1,4 @@
+// Package clientcrypto provides encryption utilities for client-side security.
 package clientcrypto
 
 import (
@@ -9,12 +10,12 @@ import (
 	"golang.org/x/crypto/argon2"
 )
 
-// DeriveKey - get key from password
+// DeriveKey derives a secure key from password and salt using Argon2.
 func DeriveKey(password, salt []byte) []byte {
 	return argon2.IDKey(password, salt, 1, 64*1024, 4, 32)
 }
 
-// Encrypt - encrypt data (AES-GCM)
+// Encrypt encrypts data using AES-GCM.
 func Encrypt(key, data []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -32,7 +33,7 @@ func Encrypt(key, data []byte) ([]byte, error) {
 	return gcm.Seal(nonce, nonce, data, nil), nil
 }
 
-// Decrypt - decrypt data
+// Decrypt decrypts AES-GCM encrypted data.
 func Decrypt(key, data []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
