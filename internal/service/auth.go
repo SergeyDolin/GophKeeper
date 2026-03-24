@@ -1,9 +1,11 @@
 package service
 
 import (
+	"crypto/rand"
 	"errors"
-	"main/internal/models"
-	"main/internal/storage"
+	"gophkeeper/internal/crypto"
+	"gophkeeper/internal/models"
+	"gophkeeper/internal/storage"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -26,14 +28,17 @@ func NewAuthService(store *storage.MemoryStorage) *AuthService {
 // Register - registration for user
 func (s *AuthService) Register(login, password string) error {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-
 	if err != nil {
 		return err
 	}
 
+	salt := make([]byte, 16)
+	rand.Read(salt)
+
 	return s.store.SaveUser(models.User{
 		Login:        login,
 		PasswordHash: hash,
+		Salt:         salt,
 	})
 }
 
@@ -55,4 +60,18 @@ func (s *AuthService) Login(login, password string) (string, error) {
 	})
 
 	return token.SignedString(s.jwtSecret)
+}
+
+func (s *AuthService) GetKey(login, password string) ([]byte, error) {
+	u, err := s.store.GetUser(login)
+	if err != nil {
+		return nil, err
+	}
+
+	err = bcrypt.CompareHashAndPassword(u.PasswordHash, []byte(password))
+	if err != nil {
+		return nil, err
+	}
+
+	return crypto.DeriveKey([]byte(password), u.Salt), nil
 }

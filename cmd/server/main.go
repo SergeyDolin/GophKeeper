@@ -1,8 +1,8 @@
 package main
 
 import (
+	"gophkeeper/internal/handlers"
 	"log"
-	"main/internal/handlers"
 	"net/http"
 )
 

@@ -1,7 +1,7 @@
 package service
 
 import (
-	"main/internal/storage"
+	"gophkeeper/internal/storage"
 	"testing"
 )
 
@@ -13,12 +13,12 @@ func TestRegisterAndLogin(t *testing.T) {
 	password := "pass"
 
 	if err := auth.Register(login, password); err != nil {
-		t.Fatal(err)
+		t.Error(err)
 	}
 
 	token, err := auth.Login(login, password)
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err)
 	}
 
 	if token == "" {
