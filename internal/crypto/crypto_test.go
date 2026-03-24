@@ -3,21 +3,14 @@ package crypto
 import "testing"
 
 func TestEncryptDecrypt(t *testing.T) {
-	key := DeriveKey([]byte("password"), []byte("salt"))
+	key := DeriveKey([]byte("pass"), []byte("salt"))
 
-	data := []byte("secret data")
+	data := []byte("hello")
 
-	enc, err := Encrypt(key, data)
-	if err != nil {
-		t.Fatal(err)
-	}
+	enc, _ := Encrypt(key, data)
+	dec, _ := Decrypt(key, enc)
 
-	dec, err := Decrypt(key, enc)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if string(dec) != string(data) {
-		t.Fatal("decrypt mismatch")
+	if string(dec) != "hello" {
+		t.Fatal("mismatch")
 	}
 }

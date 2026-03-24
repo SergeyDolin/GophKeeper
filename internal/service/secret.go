@@ -1,7 +1,6 @@
 package service
 
 import (
-	"gophkeeper/internal/crypto"
 	"gophkeeper/internal/models"
 	"gophkeeper/internal/storage"
 	"time"
@@ -18,38 +17,23 @@ func NewSecretService(store *storage.MemoryStorage) *SecretService {
 }
 
 // Create - create a secret
-func (s *SecretService) Create(user string, key []byte, typ, meta string, data []byte) (models.Secret, error) {
-	encrypted, err := crypto.Encrypt(key, data)
-	if err != nil {
-		return models.Secret{}, err
-	}
-
+func (s *SecretService) Create(user, typ, meta string, data []byte) models.Secret {
 	secret := models.Secret{
 		ID:        uuid.New().String(),
 		UserLogin: user,
 		Type:      typ,
-		Data:      encrypted,
+		Data:      data,
 		Meta:      meta,
 		UpdatedAt: time.Now(),
 	}
 
 	s.store.SaveSecret(secret)
-	return secret, nil
+	return secret
 }
 
 // List - return secrets of user
-func (s *SecretService) List(user string, key []byte) ([]models.Secret, error) {
-	secrets := s.store.GetSecretByUser(user)
-
-	for i := range secrets {
-		decrypted, err := crypto.Decrypt(key, secrets[i].Data)
-		if err != nil {
-			return nil, err
-		}
-		secrets[i].Data = decrypted
-	}
-
-	return secrets, nil
+func (s *SecretService) List(user string) []models.Secret {
+	return s.store.GetSecretByUser(user)
 }
 
 // Delete - delete of secret

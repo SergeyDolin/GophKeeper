@@ -63,42 +63,30 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(token))
 }
 
+type secretRequest struct {
+	Type string `json:"type"`
+	Data []byte `json:"data"`
+	Meta string `json:"meta"`
+}
+
 func (h *Handler) secretsHandler(w http.ResponseWriter, r *http.Request) {
 	user := h.getUserFromRequest(r)
 	if user == "" {
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
-	var req struct {
-		Type     string `json:"type"`
-		Data     string `json:"data"`
-		Meta     string `json:"meta"`
-		Password string `json:"password"`
-	}
-
-	json.NewDecoder(r.Body).Decode(&req)
-
-	key, err := h.auth.GetKey(user, req.Password)
-	if err != nil {
-		http.Error(w, "invalid password", 401)
-		return
-	}
 
 	switch r.Method {
 	case http.MethodPost:
-		sec, err := h.secrets.Create(user, key, req.Type, req.Meta, []byte(req.Data))
-		if err != nil {
-			http.Error(w, err.Error(), 500)
-			return
-		}
+		var req secretRequest
+		json.NewDecoder(r.Body).Decode(&req)
+
+		sec := h.secrets.Create(user, req.Type, req.Meta, req.Data)
+
 		json.NewEncoder(w).Encode(sec)
 
 	case http.MethodGet:
-		list, err := h.secrets.List(user, key)
-		if err != nil {
-			http.Error(w, err.Error(), 500)
-			return
-		}
+		list := h.secrets.List(user)
 		json.NewEncoder(w).Encode(list)
 
 	case http.MethodDelete:

@@ -12,19 +12,14 @@ func TestSecretCRUD(t *testing.T) {
 	user := "test"
 
 	// create
-	sec, err := service.Create(user, []byte("key"), "text", "meta", []byte("hello"))
-	if err != nil {
-		return
-	}
+	sec := service.Create(user, "text", "meta", []byte("hello"))
+
 	if sec.ID == "" {
 		t.Fatal("empty id")
 	}
 
 	// list
-	list, err := service.List(user, []byte("key"))
-	if err != nil {
-		return
-	}
+	list := service.List(user)
 	if len(list) != 1 {
 		t.Fatal("expected 1 secret")
 	}
@@ -32,10 +27,7 @@ func TestSecretCRUD(t *testing.T) {
 	// delete
 	service.Delete(sec.ID)
 
-	list, err = service.List(user, []byte("key"))
-	if err != nil {
-		return
-	}
+	list = service.List(user)
 	if len(list) != 0 {
 		t.Fatal("delete failed")
 	}

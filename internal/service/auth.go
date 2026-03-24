@@ -1,7 +1,6 @@
 package service
 
 import (
-	"crypto/rand"
 	"errors"
 	"gophkeeper/internal/crypto"
 	"gophkeeper/internal/models"
@@ -32,13 +31,9 @@ func (s *AuthService) Register(login, password string) error {
 		return err
 	}
 
-	salt := make([]byte, 16)
-	rand.Read(salt)
-
 	return s.store.SaveUser(models.User{
 		Login:        login,
 		PasswordHash: hash,
-		Salt:         salt,
 	})
 }
 

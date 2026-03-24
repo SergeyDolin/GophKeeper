@@ -25,12 +25,11 @@ func Login(login, password string) (string, error) {
 	return string(token), nil
 }
 
-func AddSecret(token, typ, data, meta, password string) error {
-	body, _ := json.Marshal(map[string]string{
-		"type":     typ,
-		"data":     data,
-		"meta":     meta,
-		"password": password,
+func AddSecret(token, typ, meta string, encrypted []byte) error {
+	body, _ := json.Marshal(map[string]interface{}{
+		"type": typ,
+		"data": encrypted,
+		"meta": meta,
 	})
 
 	req, _ := http.NewRequest("POST", baseURL+"/secrets", bytes.NewReader(body))
